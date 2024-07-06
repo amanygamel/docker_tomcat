@@ -1,5 +1,5 @@
 # Use the official Microsoft Windows Server Core base image
-FROM mcr.microsoft.com/windows/servercore:ltsc2019 AS builder
+FROM mcr.microsoft.com/windows/servercore:ltsc2019 
 
 # Set up PowerShell for further commands
 SHELL ["powershell", "-Command"]
