@@ -1,72 +1,34 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = 'java-tomcat-japanese'
-        DOCKER_TAG = 'latest'
-        DOCKER_REGISTRY_URL = 'https://index.docker.io'
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/amanygamel/docker_tomcat.git', credentialsId: '90406132-0908-4605-81c0-dc78b1657819'
+                checkout scm
             }
         }
-
-        stage('Docker Login') {
-            steps {
-                script {
-                    docker.withRegistry("${env.DOCKER_REGISTRY_URL}", 'docker-hub-credentials') {
-                        echo 'Logged in to Docker Hub'
-                    }
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    def app = docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
+                    def image = docker.build("python3-image")
                 }
             }
         }
-
         stage('Run Docker Container') {
             steps {
-                script {
-                    // Stop and remove existing container if it exists
-                    sh '''
-                    if [ $(docker ps -a -q -f name=tomcat) ]; then
-                        docker stop tomcat || true
-                        docker rm tomcat || true
-                    fi
-                    '''
-                    // Run the new container
-                    docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").run('-d -p 8080:8080 --name tomcat')
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry("${env.DOCKER_REGISTRY_URL}", 'docker-hub-credentials') {
-                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
-                    }
-                }
+                bat 'docker run -d python3-image'
             }
         }
     }
-
     post {
         always {
             script {
-                sh 'docker images'
+                if (isUnix()) {
+                    sh 'echo "Post build actions on Unix"'
+                } else {
+                    bat 'echo Post build actions on Windows'
+                }
             }
-        }
-        cleanup {
-            cleanWs()
         }
     }
 }
