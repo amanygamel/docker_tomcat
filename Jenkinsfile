@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     // Run the Docker container
-                    def container = docker.run(DOCKER_IMAGE, '-p 80:80')
+                    def container = docker.run(DOCKER_IMAGE, '-p 8080:8080')
 
                     // Optionally, you can add more steps to interact with the running container
                 }
