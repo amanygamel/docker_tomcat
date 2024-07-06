@@ -16,4 +16,18 @@ RUN choco install -y openjdk11
 ENV JAVA_HOME C:\Program Files\OpenJDK\openjdk-11.0.2
 
 # Download and install Apache Tomcat
-RUN $tomcatVersion = '9.
+RUN $tomcatVersion = '9.0.73'; `
+    $tomcatZip = 'apache-tomcat-' + $tomcatVersion + '.zip'; `
+    $tomcatUrl = 'https://archive.apache.org/dist/tomcat/tomcat-9/v' + $tomcatVersion + '/bin/' + $tomcatZip; `
+    $tomcatInstallDir = 'C:\tomcat'; `
+    Invoke-WebRequest -Uri $tomcatUrl -OutFile $tomcatZip; `
+    Expand-Archive -Path $tomcatZip -DestinationPath $tomcatInstallDir -Force; `
+    Move-Item -Path (Join-Path $tomcatInstallDir ('apache-tomcat-' + $tomcatVersion + '\*')) -Destination $tomcatInstallDir; `
+    Remove-Item -Path $tomcatZip; `
+    Remove-Item -Path (Join-Path $tomcatInstallDir ('apache-tomcat-' + $tomcatVersion))
+
+# Expose Tomcat port
+EXPOSE 8080
+
+# Set the default command to run Tomcat
+CMD ["C:\\tomcat\\bin\\catalina.bat", "run"]
